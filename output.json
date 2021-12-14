@@ -1,0 +1,116 @@
+{
+  added_at: '2021-07-06T20:09:36Z',
+  added_by: {
+    external_urls: {
+      spotify: 'https://open.spotify.com/user/31u2zm3lzrjlgcg2og6nvhxscnl4'
+    },
+    href: 'https://api.spotify.com/v1/users/31u2zm3lzrjlgcg2og6nvhxscnl4',
+    id: '31u2zm3lzrjlgcg2og6nvhxscnl4',
+    type: 'user',
+    uri: 'spotify:user:31u2zm3lzrjlgcg2og6nvhxscnl4'
+  },
+  is_local: false,
+  primary_color: null,
+  track: {
+    album: {
+      album_type: 'album',
+      artists: [
+        {
+          external_urls: {
+            spotify: 'https://open.spotify.com/artist/4Kxlr1PRlDKEB0ekOCyHgX'
+          },
+          href: 'https://api.spotify.com/v1/artists/4Kxlr1PRlDKEB0ekOCyHgX',
+          id: '4Kxlr1PRlDKEB0ekOCyHgX',
+          name: 'BIGBANG',
+          type: 'artist',
+          uri: 'spotify:artist:4Kxlr1PRlDKEB0ekOCyHgX'
+        }
+      ],
+      available_markets: [
+        'AD', 'AE', 'AG', 'AL', 'AM', 'AO', 'AR', 'AT', 'AU', 'AZ',
+        'BA', 'BB', 'BD', 'BE', 'BF', 'BG', 'BH', 'BI', 'BJ', 'BN',
+        'BO', 'BR', 'BS', 'BT', 'BW', 'BY', 'BZ', 'CA', 'CD', 'CG',
+        'CH', 'CI', 'CL', 'CM', 'CO', 'CR', 'CV', 'CW', 'CY', 'CZ',
+        'DE', 'DJ', 'DK', 'DM', 'DO', 'DZ', 'EC', 'EE', 'EG', 'ES',
+        'FI', 'FJ', 'FM', 'FR', 'GA', 'GB', 'GD', 'GE', 'GH', 'GM',
+        'GN', 'GQ', 'GR', 'GT', 'GW', 'GY', 'HK', 'HN', 'HR', 'HT',
+        'HU', 'ID', 'IE', 'IL', 'IQ', 'IS', 'IT', 'JM', 'JO', 'JP',
+        'KE', 'KG', 'KH', 'KI', 'KM', 'KN', 'KW', 'KZ', 'LA', 'LB',
+        'LC', 'LI', 'LK', 'LR', 'LS', 'LT', 'LU', 'LV', 'LY', 'MA',
+        ... 82 more items
+      ],
+      external_urls: {
+        spotify: 'https://open.spotify.com/album/7p5rDiIXiv1IcEMThKwsaM'
+      },
+      href: 'https://api.spotify.com/v1/albums/7p5rDiIXiv1IcEMThKwsaM',
+      id: '7p5rDiIXiv1IcEMThKwsaM',
+      images: [
+        {
+          height: 640,
+          url: 'https://i.scdn.co/image/ab67616d0000b273fe5b26f9a50302028398fb85',
+          width: 640
+        },
+        {
+          height: 300,
+          url: 'https://i.scdn.co/image/ab67616d00001e02fe5b26f9a50302028398fb85',
+          width: 300
+        },
+        {
+          height: 64,
+          url: 'https://i.scdn.co/image/ab67616d00004851fe5b26f9a50302028398fb85',
+          width: 64
+        }
+      ],
+      name: 'ALIVE',
+      release_date: '2012-03-28',
+      release_date_precision: 'day',
+      total_tracks: 9,
+      type: 'album',
+      uri: 'spotify:album:7p5rDiIXiv1IcEMThKwsaM'
+    },
+    artists: [
+      {
+        external_urls: {
+          spotify: 'https://open.spotify.com/artist/4Kxlr1PRlDKEB0ekOCyHgX'
+        },
+        href: 'https://api.spotify.com/v1/artists/4Kxlr1PRlDKEB0ekOCyHgX',
+        id: '4Kxlr1PRlDKEB0ekOCyHgX',
+        name: 'BIGBANG',
+        type: 'artist',
+        uri: 'spotify:artist:4Kxlr1PRlDKEB0ekOCyHgX'
+      }
+    ],
+    available_markets: [
+      'AD', 'AE', 'AG', 'AL', 'AM', 'AO', 'AR', 'AT', 'AU', 'AZ',
+      'BA', 'BB', 'BD', 'BE', 'BF', 'BG', 'BH', 'BI', 'BJ', 'BN',
+      'BO', 'BR', 'BS', 'BT', 'BW', 'BY', 'BZ', 'CA', 'CD', 'CG',
+      'CH', 'CI', 'CL', 'CM', 'CO', 'CR', 'CV', 'CW', 'CY', 'CZ',
+      'DE', 'DJ', 'DK', 'DM', 'DO', 'DZ', 'EC', 'EE', 'EG', 'ES',
+      'FI', 'FJ', 'FM', 'FR', 'GA', 'GB', 'GD', 'GE', 'GH', 'GM',
+      'GN', 'GQ', 'GR', 'GT', 'GW', 'GY', 'HK', 'HN', 'HR', 'HT',
+      'HU', 'ID', 'IE', 'IL', 'IQ', 'IS', 'IT', 'JM', 'JO', 'JP',
+      'KE', 'KG', 'KH', 'KI', 'KM', 'KN', 'KW', 'KZ', 'LA', 'LB',
+      'LC', 'LI', 'LK', 'LR', 'LS', 'LT', 'LU', 'LV', 'LY', 'MA',
+      ... 82 more items
+    ],
+    disc_number: 1,
+    duration_ms: 205013,
+    episode: false,
+    explicit: false,
+    external_ids: { isrc: 'JPB601211905' },
+    external_urls: {
+      spotify: 'https://open.spotify.com/track/2KoajfF5gKcxJq1abHcQhg'
+    },
+    href: 'https://api.spotify.com/v1/tracks/2KoajfF5gKcxJq1abHcQhg',
+    id: '2KoajfF5gKcxJq1abHcQhg',
+    is_local: false,
+    name: 'EGO',
+    popularity: 31,
+    preview_url: 'https://p.scdn.co/mp3-preview/01e7b6e3e99f7277283690b86d1f608dcce98935?cid=1fdb514647fe4126861eb8ff36f9197f',
+    track: true,
+    track_number: 8,
+    type: 'track',
+    uri: 'spotify:track:2KoajfF5gKcxJq1abHcQhg'
+  },
+  video_thumbnail: { url: null }
+}
