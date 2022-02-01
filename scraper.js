@@ -33,7 +33,7 @@ const spotify = new spotifyApi({
   const options = new chrome.Options()
       .addExtensions("ublock-origin.crx")
       .addArguments('--window-size=600,900', 'window-position=1200,200')
-      .setUserPreferences({"download.default_directory": `${__dirname}/download`});
+      .setUserPreferences({"download.default_directory": `${__dirname}\\download`});
   const driver = await new Builder()
       .forBrowser('chrome')
       .setChromeOptions(options)
@@ -95,11 +95,7 @@ const spotify = new spotifyApi({
 
       await wait(By.className('dl'));
       await click(By.className('dl'));
-      await driver.wait(
-        exists( `./download/${track.downloadedFileName}.flac.crdownload`), 
-        20000, 
-        track.downloadedFileName
-      );
+      await driver.wait(exists( `./download/${track.downloadedFileName}.flac.crdownload`));
       lastFilePath = `./download/${track.downloadedFileName}.flac`;
       await click(By.xpath('\/\/a[text() = "Back to search"]'));
       await wait(By.id('results_t'));
