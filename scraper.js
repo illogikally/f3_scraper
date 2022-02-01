@@ -17,6 +17,7 @@ const spotify = new spotifyApi({
 (async () => {
   await spotifySetup();
   let playlistId = process.argv[2];
+  const startSongIndex = process.argv[3];
   let playlist = await spotify.getPlaylistTracks(playlistId);
   let tracks = playlist.body.items.map(track => {
     track = track.track;
@@ -29,11 +30,12 @@ const spotify = new spotifyApi({
       downloadedFileName: ''
     }
   });
+  tracks = tracks.filter((_, i) => i >= startSongIndex);
 
   const options = new chrome.Options()
       .addExtensions("ublock-origin.crx")
       .addArguments('--window-size=600,900', 'window-position=1200,200')
-      .setUserPreferences({"download.default_directory": `${__dirname}\\download`});
+      .setUserPreferences({"download.default_directory": path.join(__dirname, 'download')});
   const driver = await new Builder()
       .forBrowser('chrome')
       .setChromeOptions(options)
@@ -62,7 +64,7 @@ const spotify = new spotifyApi({
         if (!title.toLocaleLowerCase().includes(searchKeyword.toLocaleLowerCase())) {
           continue;
         }
-        track.downloadedFileName = title.replace('\'', '-\'')
+        track.downloadedFileName = title.replace('\'', '-\'').replace(/[<>:"|?*]/g, '').replace(/[\/]/g, '-');
         let download = await result.findElement(By.css("a"));
         await download.click();
         await wait(By.id("flac"));
@@ -95,11 +97,13 @@ const spotify = new spotifyApi({
 
       await wait(By.className('dl'));
       await click(By.className('dl'));
-      await driver.wait(exists( `./download/${track.downloadedFileName}.flac.crdownload`));
+      const filePath = path.join('.', 'download', `${track.downloadedFileName}.flac.crdownload`);
+      console.log('crllllllll', filePath);
+      await driver.wait(exists(filePath));
       lastFilePath = `./download/${track.downloadedFileName}.flac`;
       await click(By.xpath('\/\/a[text() = "Back to search"]'));
       await wait(By.id('results_t'));
-      populateId3Tags(track);
+      // populateId3Tags(track);
     }
   } finally {
     console.log(skipped || '');
