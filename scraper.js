@@ -14,12 +14,17 @@ const spotify = new spotifyApi({
   clientSecret: '6191c4d5bee14875ae1463b843b276e5'
 });
 
+const OUTPUT_LENGTH = 70;
+let currentSong = '';
+let downloadState = '';
+let completed = 0;
+let totalSongs;
 (async () => {
   await spotifySetup();
   let playlistId = process.argv[2];
-  const startSongIndex = process.argv[3];
+  const startSongIndex = process.argv[3] || -1;
   let playlist = await spotify.getPlaylistTracks(playlistId);
-  let tracks = playlist.body.items.map(track => {
+  let tracks = playlist.body.items.filter((_,i) => i >= startSongIndex).map(track => {
     track = track.track;
     return {
       name: track.name,
@@ -30,11 +35,12 @@ const spotify = new spotifyApi({
       downloadedFileName: ''
     }
   });
-  tracks = tracks.filter((_, i) => i >= startSongIndex);
+  totalSongs = tracks.length;
 
   const options = new chrome.Options()
       .addExtensions("ublock-origin.crx")
-      .addArguments('--window-size=600,900', 'window-position=1200,200')
+      .addArguments('--window-size=600,800', 'window-position=1200,100', '--log-level=3')
+      .addArguments('excludeSwitches', ['enable-logging'])
       .setUserPreferences({"download.default_directory": path.join(__dirname, 'download')});
   const driver = await new Builder()
       .forBrowser('chrome')
@@ -45,9 +51,11 @@ const spotify = new spotifyApi({
   let lastFilePath = ''
   try {
     await driver.get('https://free-mp3-download.net/');
+    spinner();
     for (const track of tracks) {
+      downloadState = 'FINDING';
+      currentSong = track.name;
       let searchKeyword = `${track.artists[0]} - ${track.name}`;
-      console.log(searchKeyword);
       await driver.wait(until.elementLocated(By.id('q')));
       let q = await driver.findElement(By.id('q'));
       await q.clear();
@@ -64,7 +72,7 @@ const spotify = new spotifyApi({
         if (!title.toLocaleLowerCase().includes(searchKeyword.toLocaleLowerCase())) {
           continue;
         }
-        track.downloadedFileName = title.replace('\'', '-\'').replace(/[<>:"|?*]/g, '').replace(/[\/]/g, '-');
+        track.downloadedFileName = title.replace(/'/g, '-\'').replace(/[<>:"|?*]/g, '').replace(/[\/]/g, '-');
         let download = await result.findElement(By.css("a"));
         await download.click();
         await wait(By.id("flac"));
@@ -87,6 +95,7 @@ const spotify = new spotifyApi({
       await driver.executeScript('window.scrollTo(0, document.body.scrollHeight);');
       try {
         await wait(By.css('iframe[title="reCAPTCHA"]'), 500);
+        downloadState = 'CAPTCHA';
         let iframe = await driver.findElement(By.css('iframe[title="reCAPTCHA"]'));
         await driver.switchTo().frame(iframe);
         let box = await driver.findElement(By.css('.recaptcha-checkbox-border[role="presentation"]'));
@@ -97,17 +106,24 @@ const spotify = new spotifyApi({
 
       await wait(By.className('dl'));
       await click(By.className('dl'));
-      const filePath = path.join('.', 'download', `${track.downloadedFileName}.flac.crdownload`);
-      console.log('crllllllll', filePath);
-      await driver.wait(exists(filePath));
-      lastFilePath = `./download/${track.downloadedFileName}.flac`;
+      const filePath = path.join('.', 'download', `${track.downloadedFileName}`);
+      downloadState = 'STARTING DOWNLOAD';
+      await driver.wait(exists(`${filePath}.flac.crdownload`));
+      downloadState = 'DOWNLOADING';
+      driver.wait(exists(`${filePath}.flac`)).then(() => completed++);
+      lastFilePath = `${filePath}.flac`;
       await click(By.xpath('\/\/a[text() = "Back to search"]'));
       await wait(By.id('results_t'));
       // populateId3Tags(track);
     }
   } finally {
+    // await driver.wait(exists(lastFilePath));
+    while (completed + skipped.length < totalSongs) {
+      await sleep(.5);
+    }
+
+    downloadState = 'DONE';
     console.log(skipped || '');
-    await driver.wait(exists(lastFilePath));
     driver.close()
   }
 
@@ -163,9 +179,11 @@ async function spotifySetup() {
     let refreshRes = await spotify.refreshAccessToken();
     access = refreshRes.body.access_token;
     expire = refreshRes.body.expires_in*1000 + new Date().getTime();
+    if (refresh && access && expire) {
+      fs.writeFile('tokens', `${refresh}\n${access}\n${expire}`);
+    }
   }
   spotify.setAccessToken(access);
-  fs.writeFile('tokens', `${refresh}\n${access}\n${expire}`);
 }
 
 async function sleep(seconds) {
@@ -181,6 +199,28 @@ function exists(path) {
       return false;
     }
   }
+}
+
+async function spinner() {
+  const SPINNER_CHARS = '|/-\\|/-\\';
+  let i = 0;
+  let spinner = '';
+  let state = ''; 
+  let downloadProcess = '';
+  let repeat = 0;
+  let output = '';
+  let downloadingSong = '';
+  do {
+    spinner = SPINNER_CHARS[i%SPINNER_CHARS.length];
+    state = ` [${downloadState}]`;
+    downloadProcess = `[${completed}/${totalSongs}] `;
+    downloadingSong = `[${currentSong.slice(0, 30)}${currentSong.slice(30, 33).replace(/./g, '.')}]`;
+    repeat = OUTPUT_LENGTH - spinner.length - state.length - downloadProcess.length - downloadingSong.length;
+    output = `${downloadingSong}${state}${'.'.repeat(repeat)}${downloadProcess}${spinner}`;
+    process.stdout.write(`\r${output}`);
+    await sleep(.1);
+    i++;
+  } while(downloadState != 'DONE')
 }
 
 function isCaptchaChecked(driver) {
