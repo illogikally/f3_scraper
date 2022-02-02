@@ -14,7 +14,6 @@ const spotify = new spotifyApi({
   clientSecret: '6191c4d5bee14875ae1463b843b276e5'
 });
 
-const OUTPUT_LENGTH = 70;
 let currentSong = '';
 let downloadState = '';
 let completed = 0;
@@ -65,7 +64,7 @@ let totalSongs;
       let resultLength = (await results.findElements(By.css('tr'))).length;
       let found = false;
       for (let i = 0; i < resultLength; ++i) {
-        await driver.wait(until.elementsLocated(By.id("results_t")), 5000);
+        await driver.wait(until.elementsLocated(By.id("results_t")), 5e3);
         let results = await driver.findElement(By.id("results_t"));
         let result = results.findElement(By.xpath(`tr[${i+1}]`));
         let title = await (await result.findElement(By.xpath('td[1]'))).getText()
@@ -121,9 +120,11 @@ let totalSongs;
     while (completed + skipped.length < totalSongs) {
       await sleep(.5);
     }
-
     downloadState = 'DONE';
-    console.log(skipped || '');
+    if (skipped.length) {
+      console.log();
+      console.log('SKIPPED:', skipped);
+    }
     driver.close()
   }
 
@@ -174,11 +175,11 @@ async function populateId3Tags(track) {
 async function spotifySetup() {
   let tokens = (await fs.readFile('tokens')).toString().split('\n');
   let [refresh, access, expire] = tokens;
-  if (expire - new Date().getTime() < 15000) {
+  if (expire - Date.now() < 15e3) {
     spotify.setRefreshToken(refresh);
     let refreshRes = await spotify.refreshAccessToken();
     access = refreshRes.body.access_token;
-    expire = refreshRes.body.expires_in*1000 + new Date().getTime();
+    expire = refreshRes.body.expires_in*1e3 + Date.now();
     if (refresh && access && expire) {
       fs.writeFile('tokens', `${refresh}\n${access}\n${expire}`);
     }
@@ -202,25 +203,26 @@ function exists(path) {
 }
 
 async function spinner() {
-  const SPINNER_CHARS = '|/-\\|/-\\';
-  let i = 0;
-  let spinner = '';
-  let state = ''; 
-  let downloadProcess = '';
-  let repeat = 0;
-  let output = '';
-  let downloadingSong = '';
-  do {
+  const SPINNER_CHARS = '⣾⣽⣻⢿⡿⣟⣯⣷';
+  const PROGRESS_LENGTH = 30;
+  const SONG_LENGTH = 25;
+
+  let spinner, state, downloadProgress, repeat, output, downloadingSong, progress;
+  for (let i = 0; downloadState != 'DONE'; ++i) {
     spinner = SPINNER_CHARS[i%SPINNER_CHARS.length];
-    state = ` [${downloadState}]`;
-    downloadProcess = `[${completed}/${totalSongs}] `;
-    downloadingSong = `[${currentSong.slice(0, 30)}${currentSong.slice(30, 33).replace(/./g, '.')}]`;
-    repeat = OUTPUT_LENGTH - spinner.length - state.length - downloadProcess.length - downloadingSong.length;
-    output = `${downloadingSong}${state}${'.'.repeat(repeat)}${downloadProcess}${spinner}`;
+    state = `[${downloadState}]`;
+    progress = Math.floor(completed*1.0/totalSongs * PROGRESS_LENGTH);
+    progressBar = `[${'#'.repeat(progress)}${' '.repeat(PROGRESS_LENGTH - progress)}]`;
+    downloadProgress = `[${completed}/${totalSongs}]`;
+    let songName = 
+        currentSong.length <= SONG_LENGTH
+        ? currentSong + ' '.repeat(SONG_LENGTH - currentSong.length)
+        : currentSong.slice(0, SONG_LENGTH-3) + '...';
+    downloadingSong = ` [${songName}]`;
+    output = spinner + downloadingSong + progressBar + downloadProgress;
     process.stdout.write(`\r${output}`);
     await sleep(.1);
-    i++;
-  } while(downloadState != 'DONE')
+  }
 }
 
 function isCaptchaChecked(driver) {
